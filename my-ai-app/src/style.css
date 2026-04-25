@@ -1,0 +1,152 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.card {
+  padding: 2em;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* ==================================================
+   Radiology Dark Theme - 医疗深空风 (全局覆盖 Element Plus)
+   ================================================== */
+:root {
+  --medical-deep-bg: #0D1117;
+  --medical-surface: #161B22;
+  --medical-accent: #00F5FF;
+  --medical-text: #F0F6FC;
+  --medical-border: rgba(255, 255, 255, 0.08);
+  
+  /* 覆盖 Element Plus 默认变量 */
+  --el-bg-color: var(--medical-deep-bg);
+  --el-bg-color-overlay: var(--medical-surface);
+  --el-text-color-primary: var(--medical-text);
+  --el-border-color: var(--medical-border);
+  --el-border-color-light: var(--medical-border);
+  --el-fill-color-blank: #0a0d12;
+}
+
+/* 强制应用到所有根节点 */
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--medical-deep-bg) !important; /* 强制暗黑底色 */
+  color: var(--medical-text);
+  overflow: hidden;
+}
+
+/* 确保所有 Element Plus 的容器也是透明或继承背景 */
+.el-container, .el-main, .el-footer, .el-aside {
+  background-color: transparent !important;
+}
+
+/* 全局毛玻璃面板样式 */
+.glass-panel {
+  background: rgba(22, 27, 34, 0.6) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--medical-border) !important;
+  border-radius: 16px;
+}
+
+/* 霓虹按钮增强 */
+.neon-btn {
+  background-color: var(--medical-accent) !important;
+  color: #000 !important;
+  border: none !important;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+  transition: all 0.3s;
+}
+.neon-btn:hover {
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+  transform: translateY(-1px);
+}
+/* 强制消除所有潜在的白色背景 */
+#app, .el-container, .el-main, .el-footer, .el-aside, .el-card {
+  background-color: transparent;
+}
+
+/* 针对 Element Plus 侧边栏和整体框架的强制修正 */
+.el-aside {
+  background-color: rgba(22, 27, 34, 0.5) !important; /* 稍微透一点暗色 */
+  border-right: 1px solid var(--medical-border);
+}
+
+/* 确保 html 和 body 是最后一道防线 */
+html, body {
+  background-color: var(--medical-deep-bg) !important;
+  margin: 0;
+  padding: 0;
+}

@@ -1,0 +1,21 @@
+server:
+  port: 8082 # 知识库服务端口
+
+spring:
+  application:
+    name: knowledge-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_customer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 303600677gby
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# 只保留用于文本向量化的Ollama本地模型配置
+ai:
+  ollama-embedding:
+    base-url: "http://127.0.0.1:11434"
+    api-key: "ollama"
+    embedding-model: "bge-m3:latest"

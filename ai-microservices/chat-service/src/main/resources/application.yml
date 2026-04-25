@@ -1,0 +1,23 @@
+server:
+  port: 8083 # 端口必须是8083
+
+spring:
+  application:
+    name: chat-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_customer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 303600677gby
+  redis:
+    host: 127.0.0.1
+    port: 6379
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+ai:
+  deepseek:
+    api-key: "sk-50520069bf854fb4883a342e696fd800"
+    base-url: "https://api.deepseek.com/v1/"
+    chat-model: "deepseek-chat"
