@@ -1,0 +1,16 @@
+text,label
+我最近几天总是咳嗽，晚上还稍微有点低烧，需要去医院吗？,Medical_Symptom
+这几天经常熬夜，感觉心脏时不时砰砰跳得很快，有点胸闷。,Medical_Symptom
+你好，你能帮我写一段Python的冒泡排序代码吗？,General_Chat
+高血压患者平时饮食需要注意什么？能吃海鲜吗？,Medical_Advice
+吃完油泼面之后肚子一阵阵地绞痛，没有拉肚子，怎么缓解？,Medical_Symptom
+今天天气真不错，你觉得呢？,General_Chat
+医生，我确诊了二型糖尿病，目前在吃二甲双胍，请问可以和感冒药一起吃吗？,Medical_Advice
+周末打算去周边爬山，推荐几个风景好的地方吧。,General_Chat
+小孩两岁，突然发烧到39度，精神状态不太好，该吃退烧药还是去急诊？,Medical_Symptom
+怎么办理江南大学的校园卡挂失？,General_Chat
+常年有颈椎病，平时办公室坐久了头晕，有什么好的拉伸动作推荐？,Medical_Advice
+我最近失眠很严重，整宿睡不着觉，白天没精神，这是神经衰弱吗？,Medical_Symptom
+雷军昨天的发布会你看了吗？小米SU7价格怎么样？,General_Chat
+孕妇在孕晚期补钙应该吃什么牌子的钙片比较好？,Medical_Advice
+大夫，我后背左侧有点放射性的刺痛，深呼吸的时候更明显。,Medical_Symptom

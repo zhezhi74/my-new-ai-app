@@ -4,25 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2aa4c8c6-c216-4a6f-ab55-2aba5ab55142" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/client/IntentServiceClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/controller/ConsultationController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/dto/ConsultationRecordDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/service/AiExtractionService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/controller/MedicalTemplateController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/entity/MedicalTemplate.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/repository/MedicalTemplateRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/config/AiConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/config/AiConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/service/ChatService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/config/AiConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/config/AiConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/controller/KnowledgeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/controller/KnowledgeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/entity/Knowledge.java" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/entity/Knowledge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/service/KnowledgeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/service/KnowledgeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/KnowledgeManagement.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/KnowledgeManagement.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/MedicalReports.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/MedicalReports.vue" afterDir="false" />
-    </list>
+    <list default="true" id="2aa4c8c6-c216-4a6f-ab55-2aba5ab55142" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -183,7 +165,7 @@
       <workItem from="1777109112728" duration="1586000" />
       <workItem from="1777186116046" duration="6742000" />
       <workItem from="1777273778428" duration="5999000" />
-      <workItem from="1777283658082" duration="1834000" />
+      <workItem from="1777283658082" duration="2439000" />
     </task>
     <servers />
   </component>

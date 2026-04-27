@@ -1,0 +1,16 @@
+# 核心深度学习框架
+torch>=2.0.0
+# HuggingFace 模型库 (用于加载和微调 BERT)
+transformers>=4.30.0
+# 数据处理与科学计算
+pandas>=2.0.0
+numpy>=1.24.0
+# 机器学习工具包 (用于划分数据集、计算 Accuracy/F1 Score 等指标)
+scikit-learn>=1.2.0
+# 进度条展示
+tqdm>=4.65.0
+
+# === 可选依赖 (Optional) ===
+# 如果后续需要将 BERT 封装为微服务供 Java 端调用，请取消下方注释
+# fastapi>=0.100.0
+# uvicorn>=0.22.0
