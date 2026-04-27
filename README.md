@@ -39,18 +39,33 @@
 
 ---
 
-## 🚀 核心系统模块展示 (System Modules)
+## 🚀 系统功能展示 (System Modules)
 
-### 01. 智能问诊沙盘 (Intelligent Chat Terminal)
+### 00. 医疗终端安全入口 (Auth Portal)
+基于 Spring Security + JWT 的安全鉴权中心，保障医疗数据隐私。
+![安全认证入口](docs/images/00_login.png)
+
+### 01. 算力与知识枢纽大屏 (Dashboard)
+* 全局态势感知：实时呈现意图分发漏斗、RAG 向量召回率、知识库吞吐量等算法层核心指标。
+![全局态势大屏](docs/images/01_dashboard.png)
+
+### 02. RAG 核心知识库 (Knowledge Base)
+支持检索源、诊疗模板、意图语料、幻觉黑名单四大集群的原子化管理。
+![核心知识库首页](docs/images/02_knowledge_home.png)
+![知识库详情展示](docs/images/03_knowledge_detail.png)
+
+### 03. 智能问诊沙盘 (Intelligent Chat Terminal)
+支持 SSE 实时输出，并在回答末尾自动标注 RAG 检索源引用，做到“医出必有据”。
 * **意图实时监控**：沙盘侧边栏实时展示当前会话被 BERT 模型捕捉到的细粒度意图概率分布与路由走向。
+![问诊终端](docs/images/04_chat_terminal.png)
 * **流式响应与溯源**：对话末尾自动标注 RAG 检索源引用与文献出处，做到“医出必有据”。
+![问诊详情](docs/images/05_chat_terminal.png)
 
-### 02. AI 临床报告引擎 (AI Report Engine)
+### 04. AI 临床报告引擎 (AI Report Engine)
+将非结构化的患者闲聊一键萃取为结构化事实，动态生成符合临床标准的电子病历。
 * **闲聊降噪与事实萃取**：利用后台 AI 微服务，将数十轮非结构化的患者闲聊，一键降噪并萃取为结构化的医学事实层（主诉、现病史）JSON 数据。
 * **多模态动态排版**：前端解析关系型数据库中预设的临床模板 Schema，动态生成供医师填写的临床决策层（A-P）表单，最终合成标准电子病历。
-
-### 03. 算力与知识枢纽大屏 (Knowledge Dashboard)
-* 全局态势感知：实时呈现意图分发漏斗、RAG 向量召回率、知识库吞吐量等算法层核心指标。
+![报告生成展示](docs/images/06_report_engine.png)
 
 ---
 
