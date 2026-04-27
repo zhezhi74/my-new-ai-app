@@ -19,3 +19,7 @@ ai:
     base-url: "http://127.0.0.1:11434"
     api-key: "ollama"
     embedding-model: "bge-m3:latest"
+  deepseek:
+    api-key: "sk-50520069bf854fb4883a342e696fd800"
+    base-url: "https://api.deepseek.com/v1/"
+    chat-model: "deepseek-chat"

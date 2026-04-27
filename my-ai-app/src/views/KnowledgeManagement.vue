@@ -145,27 +145,26 @@
         <div v-if="injectionStep === 0" class="pipeline-step-1">
           <el-form :model="newKnowledge" label-position="top" class="dark-form">
             <el-row :gutter="20">
-              <el-col :span="8">
-                <el-form-item label="核心标识 (Title)">
-                  <el-input v-model="newKnowledge.title" placeholder="如：心脏病指南" />
-                </el-form-item>
+              <el-col :span="11">
+                <el-form-item label="载荷标识 (Title)" prop="title">
+          <el-input 
+            v-model="newKnowledge.title" 
+            :placeholder="dynamicPlaceholders.title" 
+            class="neon-input">
+          </el-input>
+        </el-form-item>
               </el-col>
-              <el-col :span="16">
-                <el-form-item label="数据类别 (Category)">
-                <el-select v-model="newKnowledge.type" placeholder="选择目标挂载区" style="width: 100%;">
-  <el-option 
-    v-for="folder in categoryFolders" 
-    :key="folder.id" 
-    :label="folder.title" 
-    :value="folder.id" 
-  />
-</el-select>
-                </el-form-item>
-              </el-col>
+              
             </el-row>
-            <el-form-item label="底层语料加载区 (Content)">
-              <el-input v-model="newKnowledge.content" type="textarea" :rows="6" placeholder="手动输入纯文本、Markdown 或 JSON..." />
-            </el-form-item>
+            <el-form-item label="数据矩阵 (Content)" prop="content">
+          <el-input 
+            type="textarea" 
+            v-model="newKnowledge.content" 
+            :rows="5" 
+            :placeholder="dynamicPlaceholders.content" 
+            class="neon-input">
+          </el-input>
+        </el-form-item>
           </el-form>
           
           <div class="pipeline-actions">
@@ -247,7 +246,7 @@ const categoryFolders = ref([
   },
   { 
     id: 'template', 
-    title: '诊疗模板骨架', 
+    title: '诊疗思维链模板', // 【核心修复】：加上“思维链”三个字，精准触发后端的 CoT 逻辑
     desc: '结构化的 SOAP 报告模板与标准临床路径骨架 (JSON/Markdown)。', 
     img: new URL('../assets/images/zhishiku1.png', import.meta.url).href 
   },
@@ -290,54 +289,63 @@ const injectionStep = ref(0); // 0: 输入, 1: 向量化模拟中, 2: 完成
 const consoleLogs = ref([]);
 const terminalBody = ref(null);
 const newKnowledge = reactive({ title: '', content: '', type: 'rag' });
+// ==================================================
+//  动态感知：根据当前所在集群，切换输入框提示语
+// ==================================================
+const dynamicPlaceholders = computed(() => {
+  const folderId = currentFolder.value;
+  switch (folderId) {
+    case 'blacklist':
+      return { 
+        title: '例如：禁止推荐未经证实的偏方', 
+        content: '例如：明确声明AI无法替代真实医生的处方，遇到严重症状强制建议线下就医...' 
+      };
+    case 'template':
+      return { 
+        title: '例如：发热问诊标准路径 / SOAP模板', 
+        content: '例如：1. 询问体温与持续时间； 2. 排查伴随症状； 3. 给出居家观察或就医建议...' 
+      };
+    case 'intent':
+      return { 
+        title: '例如：心悸用药咨询', 
+        content: '例如：患者原话“我最近心跳很快，需要吃什么药吗？”（用于扩充BERT意图识别的微调语料）' 
+      };
+    case 'rag':
+    default:
+      return { 
+        title: '例如：2026心血管疾病用药指南', 
+        content: '例如：阿司匹林主要用于抑制血小板聚集，预防心肌梗死等心血管事件发生...' 
+      };
+  }
+});
 
 // ========== 辅助函数：智能分类器与视觉映射 ==========
 const getVisualConfig = (item, index) => {
   let itemType = item.type;
   
-  if (!itemType) {
-    const title = item.title || '';
-    if (/禁止|幻觉|黑名单|拦截|驳回|越权/.test(title)) {
-      itemType = 'blacklist';
-    } else if (/模板|骨架|SOAP|格式/.test(title)) {
-      itemType = 'template';
-    } else if (/意图|语料|映射|样本/.test(title)) {
-      itemType = 'intent';
-    } else {
-      itemType = 'rag'; 
-    }
+  // 【核心修复1】：优先读取 Java 后端传来的 category 字段！
+  if (!itemType && item.category) {
+    if (item.category.includes('黑名单') || item.category.includes('幻觉')) itemType = 'blacklist';
+    else if (item.category.includes('模板') || item.category.includes('思维链')) itemType = 'template';
+    else if (item.category.includes('意图')) itemType = 'intent';
+    else if (item.category.includes('RAG')) itemType = 'rag';
   }
 
-  // ★ 核心修改：为所有类别都分配对应的专属科幻底图
+  // 如果连 category 都没有，再用 title 兜底
+  if (!itemType) {
+    const title = item.title || '';
+    if (/禁止|幻觉|黑名单|拦截|驳回|越权/.test(title)) itemType = 'blacklist';
+    else if (/模板|骨架|SOAP|格式/.test(title)) itemType = 'template';
+    else if (/意图|语料|映射|样本/.test(title)) itemType = 'intent';
+    else itemType = 'rag'; 
+  }
+
   switch (itemType) {
-    case 'blacklist':
-      return {
-        type: 'blacklist',
-        typeLabel: '幻觉抑制锁',
-        imageUrl: new URL('../assets/images/zhishiku2.png', import.meta.url).href
-      };
-    case 'template':
-      return {
-        type: 'template',
-        typeLabel: '诊疗模板骨架',
-        // 补上模板分类的图片
-        imageUrl: new URL('../assets/images/zhishiku1.png', import.meta.url).href 
-      };
-    case 'intent':
-      return {
-        type: 'intent',
-        typeLabel: '意图识别语料',
-        // 补上意图分类的图片
-        imageUrl: new URL('../assets/images/zhishiku3.png', import.meta.url).href 
-      };
+    case 'blacklist': return { type: 'blacklist', typeLabel: '幻觉抑制锁', imageUrl: new URL('../assets/images/zhishiku2.png', import.meta.url).href };
+    case 'template': return { type: 'template', typeLabel: '诊疗模板骨架', imageUrl: new URL('../assets/images/zhishiku1.png', import.meta.url).href };
+    case 'intent': return { type: 'intent', typeLabel: '意图识别语料', imageUrl: new URL('../assets/images/zhishiku3.png', import.meta.url).href };
     case 'rag':
-    default:
-      return {
-        type: 'rag',
-        typeLabel: 'RAG 检索源',
-        // RAG 源统一使用最核心的 DNA 图片
-        imageUrl: new URL('../assets/images/rag.png', import.meta.url).href
-      };
+    default: return { type: 'rag', typeLabel: 'RAG 检索源', imageUrl: new URL('../assets/images/rag.png', import.meta.url).href };
   }
 };
 
@@ -461,43 +469,45 @@ const pushLog = async (msg) => {
   if (terminalBody.value) terminalBody.value.scrollTop = terminalBody.value.scrollHeight;
 };
 
+// ==================================================
+//  极速版：终端日志瞬间注入 (无延迟版)
+// ==================================================
 const startVectorization = async () => {
-  if (!newKnowledge.title.trim() || !newKnowledge.content.trim()) {
-    ElMessage.warning('Title 与 Content 为必填向量参数');
+  if (!newKnowledge.title || !newKnowledge.content) {
+    ElMessage.warning('请填写完整的载荷信息');
     return;
   }
-  
+
   injectionStep.value = 1;
-  await pushLog('[SYS] 初始化数据注入流 (Data Injection Pipeline)...');
-  
-  // 答辩神技：制造极其逼真的 AI 处理延时感
-  const fakeSteps = [
-    '正在解析语料结构与元数据 (Metadata Parsing)...',
-    `提取有效文本段落，按 512-Token 规则进行分片 (Chunking)...`,
-    `> 成功切分 ${Math.floor(Math.random() * 30) + 5} 个独立 Chunks`,
-    '唤醒 BGE-M3 Embedding 模型引擎...',
-    '计算 1024 维高维稠密向量 (Computing Dense Vectors)...',
-    '正在建立与 Milvus 向量数据库集群的连接...',
-    '[SUCCESS] 向量映射完成，准备触发持久化 API 事务...'
-  ];
+  consoleLogs.value = [];
 
-  for (let step of fakeSteps) {
-    await new Promise(r => setTimeout(r, 600 + Math.random() * 500)); // 随机停顿 0.6~1.1秒
-    await pushLog(step);
-  }
+  // 【核心修复2】：删除所有 delay 延迟，直接满速连发指令
+  await pushLog('[SYSTEM] 初始化向量化引擎...');
+  await pushLog(`[TASK] 目标载荷: ${newKnowledge.title}`);
+  await pushLog('[PROCESS] 启动 BGE-M3 嵌入模型...');
+  await pushLog('[NETWORK] 分配 Weaviate 物理隔离存储索引...');
 
-  // 动画结束后，执行真实的后端 API 请求！
   try {
+    let categoryTitle = '默认分类';
+    if (currentFolder.value) {
+      const folderObj = categoryFolders.value.find(f => f.id === currentFolder.value);
+      if (folderObj) categoryTitle = folderObj.title;
+    }
+
+    // 这里是唯一耗时的地方（取决于你的网速和 BGE-M3 向量化速度）
     await api.addKnowledge({ 
       title: newKnowledge.title, 
       content: newKnowledge.content,
-      // 如果后端支持 type 字段，这里就可以直接传过去了
+      category: categoryTitle 
     });
-    await pushLog('[SUCCESS] API 回调确认：数据已硬核写入 MySQL & 向量库！');
+    
+    await pushLog('[SUCCESS] 200 OK: 数据已硬核写入 MySQL & Weaviate！');
+    
+    // API 请求一完成，瞬间切到“确认并挂载”状态
+    injectionStep.value = 2;
+    
   } catch (error) {
-    await pushLog('[ERROR] MySQL 持久化失败，请检查网络链路！');
-  } finally {
-    injectionStep.value = 2; // 允许用户点击完成按钮
+    await pushLog(`[ERROR] 注入失败: ${error.message}`);
   }
 };
 

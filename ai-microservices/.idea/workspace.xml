@@ -5,31 +5,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2aa4c8c6-c216-4a6f-ab55-2aba5ab55142" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/client/IntentServiceClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/controller/ConsultationController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/dto/ConsultationRecordDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/service/AiExtractionService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/controller/MedicalTemplateController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/entity/MedicalTemplate.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/repository/MedicalTemplateRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-service/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowledge-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/App.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/router/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/AdminLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/AdminLayout.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/Chat.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/Chat.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/ChatHome.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/ChatHome.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/ChatLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/ChatLayout.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/HistoryDashboard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/HistoryDashboard.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/config/AiConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/config/AiConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/chat-service/src/main/java/com/example/chatservice/service/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/config/AiConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/config/AiConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/controller/KnowledgeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/controller/KnowledgeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/entity/Knowledge.java" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/entity/Knowledge.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/service/KnowledgeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/java/com/example/knowledgeservice/service/KnowledgeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowledge-service/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/knowledge-service/src/main/resources/application.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/KnowledgeManagement.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/KnowledgeManagement.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/Login.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/Register.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/Register.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../my-ai-app/src/views/MedicalReports.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../my-ai-app/src/views/MedicalReports.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -75,7 +80,7 @@
     &quot;Spring Boot.GatewayServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.KnowledgeServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/Maven示例1/ai-serve - 保存/ai-microservices&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -83,7 +88,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
     &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
@@ -101,7 +106,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.UserServiceApplication">
+  <component name="RunManager" selected="Spring Boot.ChatServiceApplication">
     <configuration name="ChatServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="21" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -174,7 +179,11 @@
       <workItem from="1776958108910" duration="1486000" />
       <workItem from="1777011644829" duration="1941000" />
       <workItem from="1777043032239" duration="1532000" />
-      <workItem from="1777092793715" duration="1486000" />
+      <workItem from="1777092793715" duration="2717000" />
+      <workItem from="1777109112728" duration="1586000" />
+      <workItem from="1777186116046" duration="6742000" />
+      <workItem from="1777273778428" duration="5999000" />
+      <workItem from="1777283658082" duration="1834000" />
     </task>
     <servers />
   </component>

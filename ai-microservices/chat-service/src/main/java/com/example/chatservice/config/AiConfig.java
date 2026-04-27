@@ -5,6 +5,7 @@ import com.theokanning.openai.client.OpenAiApi;
 import com.theokanning.openai.service.OpenAiService;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,18 +19,21 @@ import java.time.Duration;
 @Configuration
 public class AiConfig {
 
-    // 连接DeepSeek
-    @Bean
-    @Primary
-    public OpenAiService chatOpenAiService(
+    /**
+     * 【核心修复】：明确指定 Bean 的名称为 deepSeekChatService
+     * 这样才能匹配 ChatService 构造函数里的 @Qualifier("deepSeekChatService")
+     */
+    @Bean(name = "deepSeekChatService")
+    @Qualifier("deepSeekChatService")
+    @Primary // 作为主聊天的默认 AI 服务
+    public OpenAiService deepSeekChatService(
             @Value("${ai.deepseek.api-key}") String apiKey,
             @Value("${ai.deepseek.base-url}") String baseUrl
     ) {
         return createOpenAiService(apiKey, baseUrl);
     }
 
-
-    // 公共的创建方法
+    // 公共的创建方法（保留你原有的逻辑）
     private OpenAiService createOpenAiService(String apiKey, String baseUrl) {
         ObjectMapper mapper = OpenAiService.defaultObjectMapper();
         OkHttpClient client = new OkHttpClient.Builder()
@@ -45,6 +49,11 @@ public class AiConfig {
                 .writeTimeout(Duration.ofSeconds(60))
                 .build();
 
+        // 确保 baseUrl 格式正确
+        if (!baseUrl.endsWith("/")) {
+            baseUrl += "/";
+        }
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .client(client)
@@ -53,7 +62,6 @@ public class AiConfig {
                 .build();
 
         OpenAiApi api = retrofit.create(OpenAiApi.class);
-        return new OpenAiService(api);
+        return new OpenAiService(api, client.dispatcher().executorService());
     }
-
 }

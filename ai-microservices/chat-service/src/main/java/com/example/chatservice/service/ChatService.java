@@ -24,13 +24,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
+import org.springframework.beans.factory.annotation.Qualifier;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import com.example.chatservice.client.IntentServiceClient;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -48,6 +51,8 @@ public class ChatService {
     // private final KnowledgeService knowledgeService;
     // 【新增】: 转而依赖我们创建的 Feign 客户端
     private final KnowledgeServiceClient knowledgeServiceClient;
+    // 【新增】注入意图识别客户端
+    private final IntentServiceClient intentServiceClient;
     private final ConversationRepository conversationRepository;
 
     @Value("${ai.deepseek.chat-model}")
@@ -55,16 +60,18 @@ public class ChatService {
 
     // 【核心修改】: 修改构造函数，注入 KnowledgeServiceClient 而不是 KnowledgeService
     public ChatService(ChatHistoryRepository chatHistoryRepository,
-                       OpenAiService openAiService,
+                       @Qualifier("deepSeekChatService")OpenAiService openAiService,
                        RedisTemplate<String, String> redisTemplate,
                        ObjectMapper objectMapper,
                        KnowledgeServiceClient knowledgeServiceClient, // 【修改】
+                       IntentServiceClient intentServiceClient, // 【新增】
                        ConversationRepository conversationRepository) {
         this.chatHistoryRepository = chatHistoryRepository;
         this.openAiService = openAiService;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
-        this.knowledgeServiceClient = knowledgeServiceClient; // 【修改】
+        this.knowledgeServiceClient = knowledgeServiceClient;
+        this.intentServiceClient = intentServiceClient;// 【修改】
         this.conversationRepository = conversationRepository;
     }
 
@@ -226,12 +233,72 @@ public class ChatService {
     }
 
 
+    // 【彻底重写】getFinalQuestion 方法
     private String getFinalQuestion(Long userId, String userQuestion) {
-        // 【核心修改】: 不再调用本地 service，而是通过 Feign 客户端发起网络请求
-        log.info("正在通过Feign客户端向knowledge-service发起远程调用...");
-        List<String> relevantKnowledge = knowledgeServiceClient.search(userQuestion);
-        log.info("从knowledge-service获得了 {} 条相关知识", relevantKnowledge.size());
-        return buildFinalQuestionWithKnowledge(userQuestion, relevantKnowledge);
+        log.info("============= [路由中枢启动] =============");
+        int intentCode = 2; // 默认防身策略：2 (闲聊)，防止 Python 挂了导致整个系统崩溃
+        String intentLabel = "Unknown";
+
+        // 1. 请求 Python 分诊台，进行细粒度意图识别
+        try {
+            Map<String, String> requestPayload = new HashMap<>();
+            requestPayload.put("query", userQuestion);
+
+            log.info("--> [步骤1] 调用 BERT 意图微服务...");
+            Map<String, Object> response = intentServiceClient.predictIntent(requestPayload);
+
+            if (response != null && (Integer) response.get("code") == 200) {
+                Map<String, Object> data = (Map<String, Object>) response.get("data");
+                intentCode = (Integer) data.get("intent_code");
+                intentLabel = (String) data.get("intent_label");
+            }
+        } catch (Exception e) {
+            log.error("意图识别微服务调用失败，自动降级为【闲聊】处理", e);
+        }
+
+        log.info("<-- 意图识别完毕: 类别=[{}], 标签=[{}]", intentCode, intentLabel);
+
+        // 2. 根据识别到的意图，执行动态路由策略
+        if (intentCode == 2) {
+            // 【策略 A：闲聊】 - 绕过 RAG 检索，极速响应
+            log.info("--> [步骤2] 判定为【闲聊】或通用提问，跳过 Weaviate 向量库检索。");
+            return buildChitchatPrompt(userQuestion);
+        } else {
+            // 【策略 B：医疗咨询】 - 触发 RAG 检索 (目前复用旧接口，未来可拆分为双维检索)
+            log.info("--> [步骤2] 判定为【严谨医疗】意图，向 knowledge-service 发起事实库检索...");
+            List<String> relevantKnowledge = knowledgeServiceClient.search(userQuestion);
+            log.info("<-- 检索完毕，召回 {} 条客观医学事实", relevantKnowledge.size());
+
+            return buildMedicalPrompt(userQuestion, relevantKnowledge, intentCode);
+        }
+    }
+
+    // 【新增】纯闲聊的 Prompt 模板
+    private String buildChitchatPrompt(String userQuestion) {
+        return "你是一个具备丰富医学知识但同时非常平易近人的AI医生。用户现在想和你进行一些日常交流或基础提问，不需要进行深度的病理推导。" +
+                "\n请用友好、温暖的语气回答以下用户内容：\n\n【用户内容】：\n" + userQuestion;
+    }
+
+    // 【修改】带有严格约束的医疗 Prompt 模板 (融合了你论文中的初步 CoT 思想)
+    private String buildMedicalPrompt(String userQuestion, List<String> knowledge, int intentCode) {
+        String context = CollectionUtils.isEmpty(knowledge)
+                ? "（无向量库匹配事实，请依据基础医学常识谨慎回答）"
+                : knowledge.stream().map(k -> "- " + k).collect(Collectors.joining("\n"));
+
+        // 根据细粒度意图 (0: 诊断, 1: 用药) 注入不同的基础思维链指令
+        String cotInstruction = (intentCode == 0)
+                ? "【诊断推理要求】：1. 分析可能诱发该症状的常见病因。2. 评估症状的严重性。3. 给出是否需要立即线下就医的明确建议。"
+                : "【用药建议要求】：1. 强调药物的适用症。2. 提醒常见副作用与禁忌症。3. 声明AI不能代替处方，必须遵医嘱。";
+
+        return String.format(
+                "你是一个极其严谨的主治医师。请务必基于提供的【医学客观事实】来回答患者的【病情描述】。\n\n" +
+                        "【严格约束】：\n" +
+                        "1. 绝不允许编造不存在的药物或治疗方案。\n" +
+                        "2. 你的回答必须包含以下逻辑环节：%s\n\n" +
+                        "【医学客观事实】\n%s\n\n" +
+                        "【病情描述】\n%s",
+                cotInstruction, context, userQuestion
+        );
     }
 
     private String buildFinalQuestionWithKnowledge(String userQuestion, List<String> knowledge) {

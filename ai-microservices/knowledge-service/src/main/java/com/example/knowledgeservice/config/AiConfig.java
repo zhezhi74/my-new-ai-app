@@ -1,4 +1,4 @@
-package com.example.knowledgeservice.config; // 注意：包名可能需要你根据自己的项目结构修改
+package com.example.knowledgeservice.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.theokanning.openai.client.OpenAiApi;
@@ -19,19 +19,19 @@ import java.time.Duration;
 
 @Configuration
 public class AiConfig {
-    // 连接本地Ollama
+
+    // =========================================================================
+    // 1. 本地 Ollama (bge-m3) 向量化模型配置
+    // =========================================================================
     @Bean
-    @Qualifier("embeddingOpenAiService") // 使用 @Qualifier 来标识这个特定的 Bean
+    @Qualifier("embeddingOpenAiService")
     public OpenAiService embeddingOpenAiService(
             @Value("${ai.ollama-embedding.api-key}") String apiKey,
             @Value("${ai.ollama-embedding.base-url}") String baseUrl
     ) {
-        // createOpenAiService 方法会被自动调用
         return createOpenAiService(apiKey, baseUrl);
     }
 
-
-    // 公共的创建方法
     private OpenAiService createOpenAiService(String apiKey, String baseUrl) {
         ObjectMapper mapper = OpenAiService.defaultObjectMapper();
         OkHttpClient client = new OkHttpClient.Builder()
@@ -42,6 +42,7 @@ public class AiConfig {
                             .build();
                     return chain.proceed(request);
                 })
+                // 向量化可能需要一定时间，保留你原本设置的 60 秒超时，非常稳妥
                 .connectTimeout(Duration.ofSeconds(60))
                 .readTimeout(Duration.ofSeconds(60))
                 .writeTimeout(Duration.ofSeconds(60))
@@ -58,10 +59,27 @@ public class AiConfig {
         return new OpenAiService(api);
     }
 
-    // Weaviate的配置
+    // =========================================================================
+    // 2. Weaviate 向量数据库客户端配置
+    // =========================================================================
     @Bean
-    public WeaviateClient weaviateClient() {
-        Config config = new Config("http", "localhost:8090");
+    public WeaviateClient weaviateClient(@Value("${ai.weaviate.host:localhost:8090}") String host) {
+        // 使用配置文件中的 host，如果没有配置则默认使用 localhost:8090
+        Config config = new Config("http", host);
         return new WeaviateClient(config);
     }
+
+    // =========================================================================
+    // 3. 【新增】：官方 DeepSeek (Chat) 模型配置
+    // =========================================================================
+    @Bean
+    @Qualifier("deepSeekChatService")
+    public OpenAiService deepSeekChatService(
+            @Value("${ai.deepseek.api-key}") String apiKey
+    ) {
+        // DeepSeek 的官方接口地址与 OpenAI 完全兼容，直接复用你的底层构建器
+        // 注意：DeepSeek 官方 baseUrl 必须以斜杠 / 结尾
+        return createOpenAiService(apiKey, "https://api.deepseek.com/");
+    }
+
 }

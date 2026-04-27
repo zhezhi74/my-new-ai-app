@@ -2,86 +2,83 @@
 ## Reliable Medical LLM Consultation System Based on Fine-grained Intent Routing and RAG
 
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2023.x-green.svg)](https://spring.io/projects/spring-cloud)
-[![Vue](https://img.shields.io/badge/Vue-3.x-brightgreen.svg)](https://vuejs.org/)
-[![BERT](https://img.shields.io/badge/Model-BERT-orange.svg)](https://huggingface.co/docs/transformers/model_doc/bert)
+[![Vue3](https://img.shields.io/badge/Vue-3.x-brightgreen.svg)](https://vuejs.org/)
+[![DeepSeek V3](https://img.shields.io/badge/Model-DeepSeek_V3-blue.svg)](https://deepseek.com/)
+[![BERT](https://img.shields.io/badge/NLP-BERT_FineTuned-orange.svg)](https://huggingface.co/)
+[![Weaviate](https://img.shields.io/badge/VectorDB-Weaviate-red.svg)](https://weaviate.io/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 ---
 
-> **?? 给后续接手 AI 的指令 (Instruction for Future AI):**
-> 这是一个高度模块化的微服务项目。请优先阅读本文件以了解架构细节，并参考根目录下的 `ROADMAP.md` 获取接下来的开发任务（如 BERT 微调、Python FastAPI 接口对接等）。
+## ?? 项目愿景与学术创新 (Vision & Innovation)
+
+当前通用大语言模型（LLM）在垂直医疗领域应用时，普遍面临**“意图识别模糊”**与**“致命性医疗幻觉”**两大学术痛点。本项目深度融合了 NLP 传统深度学习与现代生成式 AI 技术，提出并落地了 **Classify-then-Retrieve (先分类后检索)** 的核心防幻觉架构。
+
+通过前置微调的 BERT 模型进行细粒度意图路由，结合 RAG（检索增强生成）与动态思维链 (CoT) 注入，本系统从根本上抑制了大模型的“自信胡说”，实现了从“非结构化医患闲聊”到“结构化 SOAP 标准临床病历”的全自动医学跨越，为大模型在严肃医疗场景的落地提供了可靠范式。
 
 ---
 
-## ?? 项目愿景
-本项目旨在解决当前大语言模型在医疗问诊中存在的**意图识别模糊**与**幻觉隐患**问题。通过引入 **BERT 细粒度意图路由** 和 **RAG (检索增强生成)** 架构，系统能够根据用户主诉精准分配处理路径，并强制通过医疗指南进行事实修正，生成符合 SOAP 标准的专业病历。
+## ?? 核心架构解析 (Core Architecture)
 
-## ??? 技术架构 (Technical Stack)
+本系统在逻辑上严密划分为“核心算法层”与“工程支撑层”，以算法创新为驱动，以微服务为骨架。
 
-### 1. 后端微服务集群 (Spring Cloud Alibaba)
-* **网关层 (`gatewayservice`)**: 基于 Spring Cloud Gateway 实现 JWT 统一鉴权与动态路由。
-* **对话核心 (`chatservice`)**: 集成 LangChain4j，负责 LLM 编排、会话上下文管理与 SOAP 报告生成。
-* **知识治理 (`knowledgeservice`)**: 负责医疗语料的 CRUD、向量化触发以及黑名单规则管理。
-* **服务治理**: Nacos (注册/配置中心), Sentinel (限流熔断)。
+### I. 核心算法层 (Algorithm Core) —— 幻觉抑制的基石
+* **BERT 细粒度意图网络**：摒弃了脆弱的大模型 Prompt 意图分类，采用基于真实医疗问诊数据集**微调的 BERT 分类器**。结合 **L2 正则化**防止过拟合，精准识别诸如“病情诊断”、“用药建议”、“日常闲聊”等细粒度意图，触发动态路由策略。
+* **高维向量检索引擎 (RAG)**：基于 `bge-m3` 模型将用户医疗主诉实时向量化，并在 Weaviate 中执行 Top-K 余弦相似度检索，精准召回权威医疗指南与事实依据，作为大模型推理的“客观锚点”。
+* **动态思维链融合 (Dynamic CoT Fusion)**：业界首创的模板融合机制。系统根据前置 BERT 识别出的特定意图，自动匹配并挂载对应科室老医生的**“诊疗思维链模板”**，强制引导 DeepSeek LLM 按照严谨的临床逻辑步骤（S-O-A-P）生成推理回复。
 
-### 2. AI 算法中枢 (Python / FastAPI)
-* **意图识别**: 基于 HuggingFace 的 **BERT (RoBERTa-wwm-ext)** 预训练模型进行微调，实现细粒度意图分类。
-* **向量引擎**: 集成 **Milvus/Qdrant** 向量数据库，使用 BGE-m3 模型进行 Embedding 与 Rerank 重排。
-* **基础模型**: 通过 Ollama 部署本地 **Llama 3 / Qwen** 系列模型。
-
-### 3. 极客化前端 (Vue 3 / Composition API)
-* **UI 体系**: Element Plus + 玻璃拟物化设计 (Glassmorphism)。
-* **可视化**: ECharts 动态算力态势图。
-
----
-
-## ?? 系统功能展示
-
-### 01. 全局态势大屏 (Global Dashboard)
-展示系统实时的算力负载、RAG 检索命中率及黑名单拦截态势。
-![全局态势大屏](./docs/images/01_dashboard.png)
-
-### 02. RAG 核心知识库 (Knowledge)
-支持“RAG检索源”、“诊疗模板”、“意图语料”、“幻觉黑名单”四大集群的钻取管理。
-![核心知识库首页](./docs/images/02_knowledge_home.png)
-![知识库详情展示](./docs/images/03_knowledge_detail.png)
-
-### 03. 终端问诊沙盘 (Terminal)
-模拟沉浸式问诊环境，支持引用溯源显示，确保回答有据可查。
-![问诊终端](./docs/images/04_chat_terminal.png)
-![问诊详情](./docs/images/05_chat_terminal.png)
-
-### 04. 多模态报告引擎 (Report Engine)
-自动从历史对话中提取关键点，生成符合临床标准的 SOAP 格式电子病历。
-![报告生成展示](./docs/images/06_report_engine.png)
-
-### 05. 全息病例档案 (Archives)
-基于时间轴管理的患者历史问诊记录与数字化档案。
-![病例档案](./docs/images/07_archives.png)
+### II. 工程支撑层 (Engineering Infrastructure) —— 云原生微服务底座
+基于 **Spring Cloud** 构建高并发、高可用的微服务体系，保障核心算法的稳定调度。
+* **四大存储矩阵调度**：
+    * **Weaviate 向量库**：存储 RAG 知识库与 CoT 模板的多租户向量数据。
+    * **MySQL 关系型集群**：负责动态报告模板元数据以及多轮对话的持久化。
+    * **Redis 会话缓存**：维护高速上下文视界，保障多轮并发问诊的极低延迟。
+    * **MinIO 对象存储**：承载多模态医学报告。
+* **全双工流式引擎**：深度优化 **SSE (Server-Sent Events)** 技术，实现大模型推理过程的极低延迟实时流式输出。
+* **基础服务治理**：包含 `gateway-service` 统一路由调度与 `user-service` 基础权限管控，保障系统数据流转的安全与隔离。
 
 ---
 
-## ?? 项目结构
-```text
-├── chatservice         # 对话业务服务 (Java)
-├── knowledgeservice    # 知识库管理服务 (Java)
-├── gatewayservice      # API 网关 (Java)
-├── userservice         # 用户与权限服务 (Java)
-├── ai-engine-python    # Python 算法中枢 (BERT/FastAPI) [开发中]
-└── frontend            # Vue 3 前端工程
+## ?? 核心系统模块展示 (System Modules)
 
-### ?? 快速启动
-环境准备: JDK 17, Node.js 18+, Python 3.9+, MySQL 8.0, Redis, Nacos。
+### 01. 智能问诊沙盘 (Intelligent Chat Terminal)
+* **意图实时监控**：沙盘侧边栏实时展示当前会话被 BERT 模型捕捉到的细粒度意图概率分布与路由走向。
+* **流式响应与溯源**：对话末尾自动标注 RAG 检索源引用与文献出处，做到“医出必有据”。
 
-算法端: 进入 ai-engine-python，执行 pip install -r requirements.txt。
+### 02. AI 临床报告引擎 (AI Report Engine)
+* **闲聊降噪与事实萃取**：利用后台 AI 微服务，将数十轮非结构化的患者闲聊，一键降噪并萃取为结构化的医学事实层（主诉、现病史）JSON 数据。
+* **多模态动态排版**：前端解析关系型数据库中预设的临床模板 Schema，动态生成供医师填写的临床决策层（A-P）表单，最终合成标准电子病历。
 
-后端: 修改各模块 application.yml 中的 Nacos 地址，启动微服务。
+### 03. 算力与知识枢纽大屏 (Knowledge Dashboard)
+* 全局态势感知：实时呈现意图分发漏斗、RAG 向量召回率、知识库吞吐量等算法层核心指标。
 
-前端: 进入 frontend，执行 npm install 然后 npm run dev。
+---
 
-### ?? 开发路线图 (Roadmap)
-详细的开发进度与未来计划请参阅：ROADMAP.md
+## ?? 快速启动 (Quick Start)
 
-Author: 张权柄 (Jiangnan University - IoT Engineering)
+### 1. 环境准备
+确保本机已安装 `Docker`, `Docker Compose`, `JDK 17+`, `Node.js 18+`。
 
-Expected Graduation: June 2026
+### 2. 启动四大存储矩阵
+```bash
+cd docker-compose
+docker-compose up -d  # 将一键拉起 Weaviate, MySQL, Redis, MinIO
+```
+
+### 3. 启动微服务集群 (Backend)
+依次在 IDE 中启动以下微服务模块：
+1. `gateway-service` (统一网关)
+2. `user-service` (鉴权中心)
+3. `knowledge-service` (RAG与向量引擎)
+4. `chat-service` (对话路由与大模型调度)
+
+### 4. 启动前端工作站 (Frontend)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+> **????? Author:** Quanbing Zhang 

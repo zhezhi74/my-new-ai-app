@@ -13,7 +13,6 @@
               <el-button size="small" circle icon="Refresh" @click="loadPendingRecords" class="neon-icon-btn" />
             </div>
           </template>
-          
           <div class="record-list">
             <div 
               v-for="record in pendingRecords" 
@@ -39,7 +38,6 @@
               <el-tag type="success" size="small" effect="dark">已结构化</el-tag>
             </div>
           </template>
-          
           <div v-if="!currentRecord" class="empty-holder">请选择左侧档案</div>
           <div v-else class="archive-content">
             <div class="archive-section">
@@ -73,25 +71,56 @@
           <el-form label-position="top" class="doctor-form">
             <el-form-item label="选择医学临床模板">
               <el-select v-model="selectedTemplate" placeholder="请选择适用模板" class="dark-select">
-                <el-option label="呼吸内科常用模板" value="respiratory" />
-                <el-option label="心血管科初步筛查模板" value="cardiac" />
-                <el-option label="全科常规问诊模板" value="general" />
+                <el-option 
+                  v-for="tpl in availableTemplates" 
+                  :key="tpl.id" 
+                  :label="tpl.name" 
+                  :value="tpl.id" 
+                />
               </el-select>
             </el-form-item>
 
-            <el-form-item label="主治医师专业评价 (Assessment)">
+            <template v-if="currentTemplateObj">
+              <el-form-item 
+                v-for="sec in currentTemplateObj.parsedStructure.sections" 
+                :key="sec.key" 
+                :label="sec.label"
+              >
+                <el-input 
+                  v-model="dynamicFormData[sec.key]" 
+                  type="textarea" 
+                  :rows="3" 
+                  :placeholder="`在此输入 ${sec.label} ...`"
+                />
+              </el-form-item>
+            </template>
+            
+            <template v-else>
+              <div class="empty-holder" style="color: #8B949E; margin-bottom: 20px; font-size: 0.9rem;">
+                <el-icon><InfoFilled /></el-icon> 请先选择上方的模板，系统将自动挂载相应的临床输入表单。
+              </div>
+            </template>
+
+            <div class="divider-line" style="margin: 25px 0; border-top: 1px dashed rgba(255,255,255,0.2);"></div>
+            <h4 style="color: #00F5FF; margin-bottom: 15px; font-size: 0.95rem;">
+              <el-icon><EditPen /></el-icon> 医师独立诊断区 (A-P 决策层)
+            </h4>
+
+            <el-form-item label="主治医师评估 / 诊断结论 (Assessment)">
               <el-input 
-                v-model="doctorAdvice" 
+                v-model="doctorAssessment" 
                 type="textarea" 
-                :rows="4" 
-                placeholder="在此输入您的临床评估意见..."
+                :rows="3" 
+                placeholder="请输入医师独立诊断意见 (必填)..."
               />
             </el-form-item>
 
-            <el-form-item label="下一步诊疗计划 (Plan)">
+            <el-form-item label="下一步诊疗计划 / 处方 (Plan)">
               <el-input 
                 v-model="doctorPlan" 
-                placeholder="例如：建议血常规、胸片检查..."
+                type="textarea" 
+                :rows="3" 
+                placeholder="请输入开具的处方、检查或随访建议 (必填)..."
               />
             </el-form-item>
 
@@ -122,7 +151,7 @@
           <div class="grid-item"><strong>患者标识:</strong> {{ currentRecord?.username }}</div>
           <div class="grid-item"><strong>会诊编号:</strong> #{{ Math.floor(Math.random()*100000) }}</div>
           <div class="grid-item"><strong>主治医师:</strong> {{ currentUser }}</div>
-          <div class="grid-item"><strong>生成日期:</strong> {{ new Date().toLocaleDateString() }}</div>
+          <div class="grid-item"><strong>报告类型:</strong> {{ currentTemplateObj?.name || '综合报告' }}</div>
         </div>
 
         <div class="report-body">
@@ -130,13 +159,21 @@
             <div class="section-title">【1. 现病史与 AI 萃取摘要】</div>
             <p>{{ currentRecord?.desc }}</p>
           </div>
+          
+          <template v-if="currentTemplateObj">
+            <div class="section" v-for="(sec, index) in currentTemplateObj.parsedStructure.sections" :key="sec.key">
+              <div class="section-title">【{{ index + 2 }}. {{ sec.label }}】</div>
+              <p>{{ dynamicFormData[sec.key] || '未填写相关内容' }}</p>
+            </div>
+          </template>
+
           <div class="section">
-            <div class="section-title">【2. 临床诊断评估 (Assessment)】</div>
-            <p>{{ doctorAdvice || '医师未填写额外评估' }}</p>
+            <div class="section-title" style="color: #d90000;">【医师诊断评估 (Assessment)】</div>
+            <p style="font-weight: bold;">{{ doctorAssessment || '医师未填写诊断意见' }}</p>
           </div>
           <div class="section">
-            <div class="section-title">【3. 指导方案与计划 (Plan)】</div>
-            <p>{{ doctorPlan || '维持 AI 默认辅助建议' }}</p>
+            <div class="section-title" style="color: #d90000;">【后续诊疗计划 (Plan)】</div>
+            <p style="font-weight: bold;">{{ doctorPlan || '医师未填写后续计划' }}</p>
           </div>
         </div>
 
@@ -154,55 +191,77 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router'; // ★ 1. 必须引入 useRoute 用于读取 URL 参数
-import { User, Refresh, InfoFilled, Compass, Coordinate } from '@element-plus/icons-vue';
+// 引入 computed 和 watch 用于实现动态响应
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { User, Refresh, InfoFilled, Compass, Coordinate, EditPen } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import api from '../api';
 
-const route = useRoute(); // ★ 2. 初始化路由实例
+const route = useRoute();
 const pendingRecords = ref([]);
 const currentRecord = ref(null);
-const selectedTemplate = ref('');
-const doctorAdvice = ref('');
-const doctorPlan = ref('');
+const currentUser = ref('张权柄 医师');
 const finalReportVisible = ref(false);
-const currentUser = ref('张权柄 医师'); // 签名档已自动设为你的名字
 
-// 获取并聚合档案的逻辑
-const loadPendingRecords = async () => {
+// 【新增的动态引擎变量】
+const availableTemplates = ref([]);    // 存储从后端拉取的所有模板
+const selectedTemplate = ref('');      // 选中的模板 ID
+const dynamicFormData = ref({});       // 动态表单的数据桶：{ "heart_rate": "80", "ultrasound_img": "..." }
+const doctorAssessment = ref('');
+const doctorPlan = ref('');
+// 1. 获取 MySQL 数据库中的模板
+const loadTemplates = async () => {
   try {
-    const response = await api.getAllHistory({});
-    if (response.data) {
-      const patientMap = new Map();
-      response.data.forEach(item => {
-        if (item.role === 'user' && !patientMap.has(item.username)) {
-          patientMap.set(item.username, {
-            id: item.username,
-            username: item.username,
-            time: new Date(item.createTime).toLocaleString(),
-            desc: item.content,
-            tags: ['疑似上呼吸道感染', '伴随咳嗽', '无发热'],
-            logs: [
-              '意图识别：医疗咨询/症状自查',
-              'RAG 召回命中：感冒处理指南 (相关度 0.92)',
-              '知识库关联：建议多饮水、观察体温'
-            ]
-          });
-        }
-      });
-      pendingRecords.value = Array.from(patientMap.values());
-    }
+    // 为了防止你还没在 api.js 里配置接口，这里直接使用原生的 fetch 确保 100% 连通
+    // （如果你的后端端口不是 8082，请修改这里）
+    const response = await fetch('http://localhost:8082/api/templates');
+    const data = await response.json();
+    
+    // 提前把 MySQL 里的 structure 字符串解析成 JSON 对象，方便前端渲染
+    availableTemplates.value = data.map(tpl => {
+      try {
+        return { ...tpl, parsedStructure: JSON.parse(tpl.structure) };
+      } catch (e) {
+        return { ...tpl, parsedStructure: { sections: [] } };
+      }
+    });
   } catch (error) {
-    ElMessage.error('无法同步临床档案库');
+    ElMessage.error('无法连接到模板引擎基座，请检查后端服务是否启动');
   }
 };
 
+// 2. 计算属性：获取当前选中的模板完整对象
+const currentTemplateObj = computed(() => {
+  return availableTemplates.value.find(t => t.id === selectedTemplate.value);
+});
+
+// 3. 监听器：一旦切换模板，自动清空之前填写的动态表单数据
+watch(selectedTemplate, () => {
+  dynamicFormData.value = {};
+});
+
+// 在 MedicalReports.vue 中修改
+const loadPendingRecords = async () => {
+  try {
+    // 真正请求你刚刚写好的后端萃取接口！
+    const response = await fetch('http://localhost:8083/api/consultations/pending');
+    const data = await response.json();
+    
+    // 把真实萃取回来的数据挂载到前端
+    pendingRecords.value = data;
+    
+  } catch (error) {
+    ElMessage.error('无法连接到 AI 萃取服务基座');
+  }
+};
+
+// 修改一下 selectRecord 方法，确保切换病人时清空这两个框
 const selectRecord = (record) => {
   currentRecord.value = record;
-  selectedTemplate.value = '';
-  doctorAdvice.value = '';
-  doctorPlan.value = '';
+  selectedTemplate.value = ''; 
+  doctorAssessment.value = ''; // 切换病人清空诊断
+  doctorPlan.value = '';       // 切换病人清空计划
 };
 
 const handlePrint = () => {
@@ -210,24 +269,18 @@ const handlePrint = () => {
   finalReportVisible.value = false;
 };
 
-// ★ 3. 核心修复：将 onMounted 改为异步执行，确保“先加载数据，后定位选中”
+// 页面初始化：按顺序加载数据
 onMounted(async () => {
-  // A. 首先等待 API 请求完成，把列表填满
-  await loadPendingRecords();
+  // A. 并发加载“病人列表”和“模板库”
+  await Promise.all([loadPendingRecords(), loadTemplates()]);
   
-  // B. 从 URL 的 query 中读取传过来的 patientId
+  // B. 定位跳转逻辑
   const targetId = route.query.patientId;
-  
   if (targetId) {
-    // C. 在已经加载好的 pendingRecords 数组中寻找匹配的患者
     const target = pendingRecords.value.find(r => r.username === targetId);
-    
     if (target) {
-      // D. 找到后，立即执行选中函数，触发中间和右侧面板的更新
       selectRecord(target);
       ElMessage.success(`已自动为您定位至患者: ${targetId}`);
-    } else {
-      console.warn('在档案库中未找到对应的患者记录');
     }
   }
 });

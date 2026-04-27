@@ -73,8 +73,9 @@ public class KnowledgeController {
     //一个用于服务间调用的搜索接口
     @PostMapping("/search")
     public ResponseEntity<List<String>> searchRelevantKnowledge(@RequestBody String query) {
-        // 这里的 topN 可以硬编码或从配置读取
-        List<String> results = knowledgeService.searchRelevantKnowledge(query, 3);
+        // 直接调用重构后的双轨检索方法
+        // 该方法内部已自动实现了：Top 3 医学事实 + Top 2 专家思维链
+        List<String> results = knowledgeService.search(query);
         return ResponseEntity.ok(results);
     }
 }
